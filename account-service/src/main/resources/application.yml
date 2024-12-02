@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: account-service
+  config:
+    import: "optional:classpath:/product-config.yml"
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres  # Change to your dev database
+    username: postgres                             # Change to your dev username
+    password: QgbEZxKNdw                         # Change to your dev password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update                             # Change to 'validate' in production
+    show-sql: true                                # Show SQL queries in the console
+    properties:
+      hibernate:
+        format_sql: true                          # Format SQL for readability
+        use_sql_comments: true                    # Add comments in generated SQL
+        type:
+          trace: true                            # Trace parameter bindings
+        jdbc:
+          lob:
+            non_contextual_creation: true         # Required for PostgreSQL
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+      # Added for JSON handling
+      jakarta:
+        persistence:
+          sharedCache:
+            mode: ENABLE_SELECTIVE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info                    # Expose only health and info endpoints
+  health:
+    db:
+      enabled: true                              # Enable database health checks
+
+logging:
+  level:
+    org.springframework.boot.context.properties: DEBUG

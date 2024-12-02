@@ -1,0 +1,162 @@
+account-service:
+  brands:
+    BrandA:
+      products:
+        - name: "Business Current Account"
+          productCode: "BCA"
+          features:
+            schufa: true
+            accountOpening: true
+            pinActivation: true
+            onlineBankingActivation:
+              enabled: true
+              subFeatures:
+                telephoneBanking: true
+                smsNotifications: true
+                emailAlerts: true
+        - name: "Flex Funds"
+          productCode: "FF"
+          features:
+            schufa: true
+            accountOpening: true
+            pinActivation: false
+            onlineBankingActivation:
+              enabled: true
+              subFeatures:
+                telephoneBanking: false
+                smsNotifications: true
+                emailAlerts: true
+        - name: "Deposits"
+          productCode: "DEP"
+          features:
+            schufa: true
+            accountOpening: true
+            pinActivation: false
+            onlineBankingActivation:
+              enabled: false
+        - name: "Savings"
+          productCode: "SAV"
+          features:
+            schufa: true
+            accountOpening: true
+            pinActivation: true
+            onlineBankingActivation:
+              enabled: true
+              subFeatures:
+                telephoneBanking: true
+                smsNotifications: false
+                emailAlerts: true
+        - name: "Dummy"
+          productCode: "DEF"
+          features:
+            schufa: true
+            accountOpening: false
+            pinActivation: false
+            onlineBankingActivation:
+              enabled: false
+
+    BrandB:
+      products:
+        - name: "Business Current Account"
+          productCode: "BCA"
+          features:
+            schufa: true
+            accountOpening: true
+            pinActivation: true
+            onlineBankingActivation:
+              enabled: true
+              subFeatures:
+                telephoneBanking: true
+                smsNotifications: true
+                emailAlerts: false
+        - name: "Flex Funds"
+          productCode: "FF"
+          features:
+            schufa: false
+            accountOpening: true
+            pinActivation: true
+            onlineBankingActivation:
+              enabled: false
+        - name: "Deposits"
+          productCode: "DEP"
+          features:
+            schufa: true
+            accountOpening: false
+            pinActivation: false
+            onlineBankingActivation:
+              enabled: false
+        - name: "Savings"
+          productCode: "SAV"
+          features:
+            schufa: false
+            accountOpening: true
+            pinActivation: true
+            onlineBankingActivation:
+              enabled: true
+              subFeatures:
+                telephoneBanking: false
+                smsNotifications: true
+                emailAlerts: true
+        - name: "Dummy"
+          productCode: "DEF"
+          features:
+            schufa: true
+            accountOpening: false
+            pinActivation: false
+            onlineBankingActivation:
+              enabled: false
+
+    BrandC:
+      products:
+        - name: "Business Current Account"
+          productCode: "BCA"
+          features:
+            schufa: true
+            accountOpening: true
+            pinActivation: true
+            onlineBankingActivation:
+              enabled: true
+              subFeatures:
+                telephoneBanking: false
+                smsNotifications: false
+                emailAlerts: true
+        - name: "Flex Funds"
+          productCode: "FF"
+          features:
+            schufa: true
+            accountOpening: true
+            pinActivation: false
+            onlineBankingActivation:
+              enabled: true
+              subFeatures:
+                telephoneBanking: true
+                smsNotifications: true
+                emailAlerts: false
+        - name: "Deposits"
+          productCode: "DEP"
+          features:
+            schufa: false
+            accountOpening: true
+            pinActivation: false
+            onlineBankingActivation:
+              enabled: false
+        - name: "Savings"
+          productCode: "SAV"
+          features:
+            schufa: true
+            accountOpening: true
+            pinActivation: true
+            onlineBankingActivation:
+              enabled: true
+              subFeatures:
+                telephoneBanking: true
+                smsNotifications: true
+                emailAlerts: true
+        - name: "Dummy"
+          productCode: "DEF"
+          features:
+            schufa: false
+            accountOpening: false
+            pinActivation: false
+            onlineBankingActivation:
+              enabled: false

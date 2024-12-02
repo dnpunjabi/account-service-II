@@ -1,0 +1,10 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "cSpell.words": [
+        "branda",
+        "datasource",
+        "hikari",
+        "jdbc",
+        "schufa"
+    ]
+}
