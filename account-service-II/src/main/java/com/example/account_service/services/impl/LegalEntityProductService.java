@@ -1,11 +1,13 @@
 package com.example.account_service.services.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.account_service.config.ProductConfig;
+import com.example.account_service.features.builder.FeatureOrderBuilder;
 import com.example.account_service.features.factory.ProductFeatureFactory;
 import com.example.account_service.services.OrinocoCaseManagementService;
 import com.example.account_service.services.ProductService;
@@ -19,14 +21,17 @@ public class LegalEntityProductService implements ProductService {
     private final ProductFeatureFactory featureFactory;
     private final ProductConfig productConfig;
     private final OrinocoCaseManagementService caseManagementService;
+    private final FeatureOrderBuilder featureOrderBuilder;
 
     @Autowired
     public LegalEntityProductService(ProductFeatureFactory featureFactory,
                                      ProductConfig productConfig,
-                                     OrinocoCaseManagementService caseManagementService) {
+                                     OrinocoCaseManagementService caseManagementService,
+                                     FeatureOrderBuilder featureOrderBuilder) {
         this.featureFactory = featureFactory;
         this.productConfig = productConfig;
         this.caseManagementService = caseManagementService;
+        this.featureOrderBuilder = featureOrderBuilder;
     }
 
     @Override
@@ -43,34 +48,38 @@ public class LegalEntityProductService implements ProductService {
         try {
             log.info("Processing Legal Entity Onboarding for brand: {}, product: {}", brand, productCode);
 
-            // Skip SCHUFA Check for legal entities
-            log.info("Skipping SCHUFA Check for legal entities");
+            // Use FeatureOrderBuilder to determine the ordered features
+            List<String> executionOrder = featureOrderBuilder.buildFeatureOrder(product);
 
-            // Account Opening
-            if (product.getFeatures().isAccountOpening()) {
-                log.info("Executing Account Opening for brand: {}, product: {}", brand, productCode);
-                featureFactory.getFeature("account-opening").execute(requestContext);
+            // Process each feature in the execution order
+            for (String feature : executionOrder) {
+                switch (feature) {
+                    case "AccountOpening":
+                        featureFactory.getFeature("account-opening").execute(requestContext);
+                        break;
+                    case "PINActivation":
+                        boolean pinSet = (boolean) requestContext.getOrDefault("pinSet", false);
+                        if (pinSet) {
+                            featureFactory.getFeature("activate-pin").execute(requestContext);
+                        } else {
+                            log.info("Skipping PIN Activation (PIN not set).");
+                        }
+                        break;
+                    case "OnlineBankingActivation":
+                        boolean onlineBankingRequested = (boolean) requestContext.getOrDefault("onlineBankingOptIn", false);
+                        if (onlineBankingRequested) {
+                            featureFactory.getFeature("activate-online-banking").execute(requestContext);
+                        } else {
+                            log.info("Skipping online banking activation as the customer did not request it.");
+                        }
+                        break;
+                    default:
+                        log.warn("Unknown feature: {}", feature);
+                        break;
+                }
             }
-
-            // PIN Activation
-            boolean pinSet = (boolean) requestContext.getOrDefault("pinSet", false);
-            if (product.getFeatures().isPinActivation() && pinSet) {
-                log.info("Executing PIN Activation for brand: {}, product: {}", brand, productCode);
-                featureFactory.getFeature("activate-pin").execute(requestContext);
-            } else if (product.getFeatures().isPinActivation() && !pinSet) {
-                log.info("Skipping PIN Activation for brand: {}, product: {} (PIN not set)", brand, productCode);
-            }
-
-               // Online Banking Activation
-               boolean onlineBankingRequested = (boolean) requestContext.getOrDefault("onlineBankingOptIn", false); // Assuming a flag in the request context
-               if (product.getFeatures().getOnlineBankingActivation().isEnabled() && onlineBankingRequested) {
-                   featureFactory.getFeature("activate-online-banking").execute(requestContext);
-               }else if (product.getFeatures().getOnlineBankingActivation().isEnabled() && !onlineBankingRequested) {
-                   log.info("Skipping online banking activation as the customer did not request it.");
-               }
-
         } catch (Exception ex) {
-            log.error("Error during onboarding for brand: {}, product: {}. Error: {}", brand, productCode, ex.getMessage());
+            log.error("Error during processing for brand: {}, product: {}. Error: {}", brand, productCode, ex.getMessage());
             return handleFailure(requestContext, ex.getMessage());
         }
 
@@ -78,11 +87,7 @@ public class LegalEntityProductService implements ProductService {
         return null;
     }
 
-    /**
-     * Handles failures by notifying the Orinoco Case Management system.
-     */
     private String handleFailure(Map<String, Object> requestContext, String errorDetails) {
-        log.error("Handling failure for request: {}. Error: {}", requestContext, errorDetails);
         return caseManagementService.notifyBackOffice(requestContext, errorDetails);
     }
 }

@@ -2,7 +2,6 @@ package com.example.account_service.features.impl;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,11 +37,7 @@ public class OnlineBankingActivationFeatureImpl implements ProductFeature {
     public void execute(Map<String, Object> requestContext) throws Exception {
         String brand = (String) requestContext.get("brand");
         String productCode = (String) requestContext.get("productCode");
-        String transactionId = (String) requestContext.get("transactionId");
-        String fkn = (String) requestContext.get("fkn");
-        boolean onlineBankingOptIn = (boolean) requestContext.getOrDefault("onlineBankingOptIn", false);
-
-        // Retrieve the product config for the brand and product
+        // Retrieve the product configuration
         ProductConfig.Product product = productConfig.getBrands().get(brand).getProducts().stream()
             .filter(p -> p.getProductCode().equalsIgnoreCase(productCode))
             .findFirst()
@@ -50,28 +45,13 @@ public class OnlineBankingActivationFeatureImpl implements ProductFeature {
 
         // Check if online banking is enabled
         ProductConfig.OnlineBankingFeature onlineBanking = product.getFeatures().getOnlineBankingActivation();
-        if (!onlineBanking.isEnabled() || !onlineBankingOptIn) {
-            log.info("Online banking activation is not enabled or opted-in for brand: {}, product: {}", brand, productCode);
-            return;
-        }
+        
 
-        // Prepare sub-feature attributes
-        ProductConfig.SubFeatures subFeatures = onlineBanking.getSubFeatures();
+        // Retrieve subfeatures
+        Map<String, Boolean> subFeatures = getSubFeatures(onlineBanking);
 
         // Build the custom payload for the Online Banking Activation API
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("transactionId", transactionId);
-        payload.put("fkn", fkn);
-        payload.put("productCode", productCode);
-        payload.put("customerType", requestContext.get("customerType")); // Example: Individual or Corporate
-        payload.put("channel", "digital-banking"); // Constant field
-        payload.put("simulateFailure", Optional.ofNullable(requestContext.get("simulateFailure")).map(String::valueOf).orElse("NONE"));
-        payload.put("failureTarget", Optional.ofNullable(requestContext.get("failureTarget")).map(String::valueOf).orElse("NONE"));
-
-        // Add sub-feature attributes to the payload
-        payload.put("telephoneBanking", subFeatures.isTelephoneBanking());
-        payload.put("smsNotifications", subFeatures.isSmsNotifications());
-        payload.put("emailAlerts", subFeatures.isEmailAlerts());
+        Map<String, Object> payload = buildPayload(requestContext, productCode, subFeatures);
 
         log.info("Payload for Online Banking Activation: {}", payload);
 
@@ -80,27 +60,55 @@ public class OnlineBankingActivationFeatureImpl implements ProductFeature {
         ResponseEntity<String> response = restClientUtil.makePostCall(url, payload);
 
         // Log the request and response in the database
+        logApiCall(requestContext, productCode, payload, response);
+
+        // Handle non-successful responses
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Online Banking Activation failed for productCode: " + productCode +
+                " with status: " + response.getStatusCode());
+        }
+
+        log.info("Online Banking Activation successfully completed for product: {}", productCode);
+    }
+
+    private Map<String, Boolean> getSubFeatures(ProductConfig.OnlineBankingFeature onlineBanking) {
+        Map<String, Boolean> subFeaturesMap = new HashMap<>();
+        ProductConfig.SubFeatures subFeatures = onlineBanking.getSubFeatures();
+
+        if (subFeatures != null) {
+            subFeaturesMap.put("telephoneBanking", subFeatures.isTelephoneBanking());
+            subFeaturesMap.put("smsNotifications", subFeatures.isSmsNotifications());
+            subFeaturesMap.put("emailAlerts", subFeatures.isEmailAlerts());
+        }
+
+        return subFeaturesMap;
+    }
+
+    private Map<String, Object> buildPayload(Map<String, Object> requestContext, String productCode, Map<String, Boolean> subFeatures) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("transactionId", requestContext.get("transactionId"));
+        payload.put("fkn", requestContext.get("fkn"));
+        payload.put("productCode", productCode);
+        payload.put("customerType", requestContext.get("customerType"));
+        payload.put("channel", "digital-banking");
+        payload.put("simulateFailure", requestContext.get("simulateFailure"));
+        payload.put("failureTarget", requestContext.get("failureTarget"));
+        payload.putAll(subFeatures); // Add subfeatures to the payload
+        return payload;
+    }
+
+    private void logApiCall(Map<String, Object> requestContext, String productCode, Map<String, Object> payload, ResponseEntity<String> response) throws Exception {
+        String transactionId = (String) requestContext.get("transactionId");
         String jsonPayload = objectMapper.writeValueAsString(payload);
+
         apiCallLogService.logApiResponse(
             transactionId,
             "activate-online-banking",
-            fkn,
+            (String) requestContext.get("fkn"),
             productCode,
             response.getStatusCode().toString(),
             jsonPayload,
             response.getBody()
         );
-
-        // Handle non-successful responses
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new RuntimeException("Online Banking Activation failed for productCode: " + productCode +
-                ", transactionId: " + transactionId +
-                ", fkn: " + fkn +
-                " with status: " + response.getStatusCode());
-        }
-
-        // Log success
-        log.info("Online Banking Activation successfully completed for product: {}, transactionId: {}, fkn: {}",
-            productCode, transactionId, fkn);
     }
 }

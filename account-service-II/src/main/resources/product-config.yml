@@ -5,11 +5,14 @@ account-service:
         - name: "Business Current Account"
           productCode: "BCA"
           features:
-            schufa: true
-            accountOpening: true
-            pinActivation: true
+            pinActivation:
+              priority: 1
+            schufa:
+              priority: 3
+            accountOpening:
+              priority: 2
             onlineBankingActivation:
-              enabled: true
+              priority: 4
               subFeatures:
                 telephoneBanking: true
                 smsNotifications: true
@@ -17,11 +20,12 @@ account-service:
         - name: "Flex Funds"
           productCode: "FF"
           features:
-            schufa: true
-            accountOpening: true
-            pinActivation: false
+            schufa:
+              priority: 1
+            accountOpening:
+              priority: 2
             onlineBankingActivation:
-              enabled: true
+              priority: 3
               subFeatures:
                 telephoneBanking: false
                 smsNotifications: true
@@ -29,19 +33,21 @@ account-service:
         - name: "Deposits"
           productCode: "DEP"
           features:
-            schufa: true
-            accountOpening: true
-            pinActivation: false
-            onlineBankingActivation:
-              enabled: false
+            schufa:
+              priority: 1
+            accountOpening:
+              priority: 2
         - name: "Savings"
           productCode: "SAV"
           features:
-            schufa: true
-            accountOpening: true
-            pinActivation: true
+            pinActivation:
+              priority: 1
+            schufa:
+              priority: 3
+            accountOpening:
+              priority: 2
             onlineBankingActivation:
-              enabled: true
+              priority: 4
               subFeatures:
                 telephoneBanking: true
                 smsNotifications: false
@@ -49,22 +55,22 @@ account-service:
         - name: "Dummy"
           productCode: "DEF"
           features:
-            schufa: true
-            accountOpening: false
-            pinActivation: false
-            onlineBankingActivation:
-              enabled: false
+            schufa:
+              priority: 1
 
     BrandB:
       products:
         - name: "Business Current Account"
           productCode: "BCA"
           features:
-            schufa: true
-            accountOpening: true
-            pinActivation: true
+            pinActivation:
+              priority: 1
+            schufa:
+              priority: 3
+            accountOpening:
+              priority: 2
             onlineBankingActivation:
-              enabled: true
+              priority: 4
               subFeatures:
                 telephoneBanking: true
                 smsNotifications: true
@@ -72,27 +78,24 @@ account-service:
         - name: "Flex Funds"
           productCode: "FF"
           features:
-            schufa: false
-            accountOpening: true
-            pinActivation: true
-            onlineBankingActivation:
-              enabled: false
+            accountOpening:
+              priority: 1
+            pinActivation:
+              priority: 2
         - name: "Deposits"
           productCode: "DEP"
           features:
-            schufa: true
-            accountOpening: false
-            pinActivation: false
-            onlineBankingActivation:
-              enabled: false
+            schufa:
+              priority: 1
         - name: "Savings"
           productCode: "SAV"
           features:
-            schufa: false
-            accountOpening: true
-            pinActivation: true
+            accountOpening:
+              priority: 1
+            pinActivation:
+              priority: 2
             onlineBankingActivation:
-              enabled: true
+              priority: 3
               subFeatures:
                 telephoneBanking: false
                 smsNotifications: true
@@ -100,22 +103,22 @@ account-service:
         - name: "Dummy"
           productCode: "DEF"
           features:
-            schufa: true
-            accountOpening: false
-            pinActivation: false
-            onlineBankingActivation:
-              enabled: false
+            schufa:
+              priority: 1
 
     BrandC:
       products:
         - name: "Business Current Account"
           productCode: "BCA"
           features:
-            schufa: true
-            accountOpening: true
-            pinActivation: true
+            pinActivation:
+              priority: 1
+            schufa:
+              priority: 3
+            accountOpening:
+              priority: 2
             onlineBankingActivation:
-              enabled: true
+              priority: 4
               subFeatures:
                 telephoneBanking: false
                 smsNotifications: false
@@ -123,11 +126,12 @@ account-service:
         - name: "Flex Funds"
           productCode: "FF"
           features:
-            schufa: true
-            accountOpening: true
-            pinActivation: false
+            schufa:
+              priority: 1
+            accountOpening:
+              priority: 2
             onlineBankingActivation:
-              enabled: true
+              priority: 3
               subFeatures:
                 telephoneBanking: true
                 smsNotifications: true
@@ -135,19 +139,19 @@ account-service:
         - name: "Deposits"
           productCode: "DEP"
           features:
-            schufa: false
-            accountOpening: true
-            pinActivation: false
-            onlineBankingActivation:
-              enabled: false
+            accountOpening:
+              priority: 1
         - name: "Savings"
           productCode: "SAV"
           features:
-            schufa: true
-            accountOpening: true
-            pinActivation: true
+            pinActivation:
+              priority: 1
+            schufa:
+              priority: 3
+            accountOpening:
+              priority: 2
             onlineBankingActivation:
-              enabled: true
+              priority: 4
               subFeatures:
                 telephoneBanking: true
                 smsNotifications: true
@@ -155,8 +159,5 @@ account-service:
         - name: "Dummy"
           productCode: "DEF"
           features:
-            schufa: false
-            accountOpening: false
-            pinActivation: false
-            onlineBankingActivation:
-              enabled: false
+            schufa:
+              priority: 1
